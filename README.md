@@ -15,5 +15,5 @@ Tests: `python -m pytest -q`
 
 Lint: `ruff check .`
 
-hello
+hello develop
 

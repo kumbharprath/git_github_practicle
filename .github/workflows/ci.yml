@@ -1,0 +1,45 @@
+name: Day 1 CI
+on:
+  push:
+    branches: [main, develop, "feature/**"]
+  pull_request:
+    branches: [main, develop]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Check formatting and lint
+        run: ruff check .
+      - name: Run tests
+        run: pytest -q --junitxml=reports/test-results.xml
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-report
+          path: reports/test-results.xml
+          if-no-files-found: ignore
+  package:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload source package
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-package
+          path: |
+            app/
+            requirements.txt
+            .gitignore
